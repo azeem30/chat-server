@@ -14,7 +14,7 @@ public class User {
     @Nonnull
     private String password;
     @Nonnull
-    private Integer ip;
+    private Long ip;
 
     public String getUsername() {
         return username;
@@ -32,11 +32,11 @@ public class User {
         this.password = password;
     }
 
-    public Integer getIp() {
+    public Long getIp() {
         return ip;
     }
 
-    public void setIp(Integer ip) {
+    public void setIp(Long ip) {
         this.ip = ip;
     }
 }
