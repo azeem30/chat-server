@@ -19,6 +19,19 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public Boolean findUserByUsername(String username) {
+        try {
+            Optional<User> optionalUser = userRepository.findById(username);
+            if (optionalUser.isEmpty()) {
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
     public Boolean registerUser(User user) {
         try {
             String encryptedPassword = Cryptography.encrypt(user.getPassword());
