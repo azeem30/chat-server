@@ -11,6 +11,13 @@ import org.springframework.data.repository.query.Param;
 import com.example.server.entity.Message;
 
 public interface MessageRepository extends JpaRepository<Message, BigInteger> {
-    @Query("SELECT message from messages message WHERE message.sender.username = :username OR message.receiver.username = :username")
-    Optional<List<Message>> findChatsBySender(@Param("username") String username);
+
+    @Query("SELECT m FROM messages m WHERE m.id IN (" +
+            "SELECT MAX(m2.id) FROM messages m2 " +
+            "WHERE m2.sender.username = :username OR m2.receiver.username = :username " +
+            "GROUP BY CASE " +
+            "   WHEN m2.sender.username = :username THEN m2.receiver.username " +
+            "   ELSE m2.sender.username " +
+            "END)")
+    Optional<List<Message>> findChatsByUser(@Param("username") String username);
 }

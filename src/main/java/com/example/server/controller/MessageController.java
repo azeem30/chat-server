@@ -22,9 +22,9 @@ public class MessageController {
     private MessageService messageService;
 
     @GetMapping
-    public ResponseEntity<?> getChatsBySender(@RequestParam String username) {
+    public ResponseEntity<?> getChatsByUser(@RequestParam String username) {
         try {
-            List<Message> chats = messageService.getChatsBySender(username);
+            List<Message> chats = messageService.getChatsByUser(username);
             if (!chats.isEmpty() && chats != null) {
                 Map<String, List<Message>> response = new HashMap<>();
                 response.put("chats", chats);
