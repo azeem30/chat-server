@@ -1,6 +1,9 @@
 package com.example.server.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.annotation.Nonnull;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,6 +18,8 @@ public class User {
     private String password;
     @Nonnull
     private Long ip;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public String getUsername() {
         return username;
@@ -38,5 +43,13 @@ public class User {
 
     public void setIp(Long ip) {
         this.ip = ip;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

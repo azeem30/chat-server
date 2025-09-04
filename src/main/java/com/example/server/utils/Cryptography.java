@@ -5,6 +5,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
+import java.io.ByteArrayOutputStream;
 
 public class Cryptography {
     private static String secretKey = System.getProperty("SECRET_KEY");
@@ -43,6 +46,49 @@ public class Cryptography {
             return new String(original);
         } catch (Exception ex) {
             throw new RuntimeException("Decryption error: " + ex.getMessage(), ex);
+        }
+    }
+
+    public static String compress(String encrypted) {
+        try {
+            byte[] inputBytes = encrypted.getBytes(StandardCharsets.UTF_8);
+            Deflater deflater = new Deflater(6);
+            deflater.setInput(inputBytes);
+            deflater.finish();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            while (!deflater.finished()) {
+                int count = deflater.deflate(buffer);
+                outputStream.write(buffer, 0, count);
+            }
+            deflater.end();
+            byte[] compressedBytes = outputStream.toByteArray();
+            String compressedString = Base64.getEncoder().encodeToString(compressedBytes);
+
+            if (compressedString.length() > 255) {
+                throw new IllegalStateException("Compressed string exceeds 255 characters");
+            }
+            return compressedString;
+        } catch (Exception ex) {
+            throw new RuntimeException("Compression error: " + ex.getMessage(), ex);
+        }
+    }
+
+    public static String decompress(String compressed) {
+        try {
+            byte[] compressedBytes = Base64.getDecoder().decode(compressed);
+            Inflater inflater = new Inflater();
+            inflater.setInput(compressedBytes);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            while (!inflater.finished()) {
+                int count = inflater.inflate(buffer);
+                outputStream.write(buffer, 0, count);
+            }
+            inflater.end();
+            return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            throw new RuntimeException("Decompression error: " + ex.getMessage(), ex);
         }
     }
 }

@@ -21,6 +21,7 @@ public class UserService {
 
     public Boolean findUserByUsername(String username) {
         try {
+            username = Cryptography.compress(Cryptography.encrypt(username));
             Optional<User> optionalUser = userRepository.findById(username);
             if (optionalUser.isEmpty()) {
                 return false;
@@ -34,8 +35,8 @@ public class UserService {
 
     public Boolean registerUser(User user) {
         try {
-            String encryptedPassword = Cryptography.encrypt(user.getPassword());
-            user.setPassword(encryptedPassword);
+            user.setUsername(Cryptography.compress(Cryptography.encrypt(user.getUsername())));
+            user.setPassword(Cryptography.compress(Cryptography.encrypt(user.getPassword())));
             User savedUser = userRepository.save(user);
             return savedUser != null;
         } catch (Exception e) {
@@ -46,12 +47,13 @@ public class UserService {
 
     public Boolean loginUser(User user) {
         try {
+            user.setUsername(Cryptography.compress(Cryptography.encrypt(user.getUsername())));
             Optional<User> optionalUser = userRepository.findById(user.getUsername());
             if (optionalUser.isEmpty()) {
                 return false;
             }
             User savedUser = optionalUser.get();
-            String decryptedPassword = Cryptography.decrypt(savedUser.getPassword());
+            String decryptedPassword = Cryptography.decrypt(Cryptography.decompress(savedUser.getPassword()));
             return user.getPassword().equals(decryptedPassword) && user.getIp().equals(savedUser.getIp());
         } catch (Exception e) {
             System.out.println(e.getMessage());
