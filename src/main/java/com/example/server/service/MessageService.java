@@ -21,35 +21,56 @@ public class MessageService {
         String encryptedUsername = Cryptography.compress(Cryptography.encrypt(username));
         Optional<List<Message>> optionalChats = messageRepository.findChatsByUser(encryptedUsername);
         if (optionalChats.isEmpty()) {
-            return new ArrayList<Message>();
+            return new ArrayList<>();
         }
+
         List<Message> chats = optionalChats.get();
+        List<Message> decryptedChats = new ArrayList<>();
+
         for (Message message : chats) {
+            // Create a new Message object to avoid modifying the original entity
+            Message decryptedMessage = new Message();
+            decryptedMessage.setId(message.getId());
+            decryptedMessage.setStatus(message.getStatus());
+            decryptedMessage.setTime(message.getTime());
+
             try {
+                // Decrypt the message text
                 String decryptedText = Cryptography.decrypt(Cryptography.decompress(message.getText()));
-                message.setText(decryptedText);
+                decryptedMessage.setText(decryptedText);
             } catch (Exception e) {
-                message.setText("[Encrypted message - decryption failed]");
+                decryptedMessage.setText("[Encrypted message - decryption failed]");
             }
 
             try {
-                User sender = message.getSender();
-                String decryptedSenderUsername = Cryptography.decrypt(Cryptography.decompress(sender.getUsername()));
-                sender.setUsername(decryptedSenderUsername);
+                // Create a new User object for sender and set decrypted username
+                User decryptedSender = new User();
+                String decryptedSenderUsername = Cryptography.decrypt(
+                        Cryptography.decompress(message.getSender().getUsername()));
+                decryptedSender.setUsername(decryptedSenderUsername);
+                decryptedMessage.setSender(decryptedSender);
             } catch (Exception e) {
-                message.getSender().setUsername("[Sender decryption failed]");
+                User errorSender = new User();
+                errorSender.setUsername("[Sender decryption failed]");
+                decryptedMessage.setSender(errorSender);
             }
 
             try {
-                User receiver = message.getReceiver();
-                String decryptedReceiverUsername = Cryptography
-                        .decrypt(Cryptography.decompress(receiver.getUsername()));
-                receiver.setUsername(decryptedReceiverUsername);
+                // Create a new User object for receiver and set decrypted username
+                User decryptedReceiver = new User();
+                String decryptedReceiverUsername = Cryptography.decrypt(
+                        Cryptography.decompress(message.getReceiver().getUsername()));
+                decryptedReceiver.setUsername(decryptedReceiverUsername);
+                decryptedMessage.setReceiver(decryptedReceiver);
             } catch (Exception e) {
-                message.getReceiver().setUsername("[Receiver decryption failed]");
+                User errorReceiver = new User();
+                errorReceiver.setUsername("[Receiver decryption failed]");
+                decryptedMessage.setReceiver(errorReceiver);
             }
+
+            decryptedChats.add(decryptedMessage);
         }
 
-        return chats;
+        return decryptedChats;
     }
 }
