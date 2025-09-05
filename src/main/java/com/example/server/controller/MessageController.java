@@ -40,4 +40,25 @@ public class MessageController {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/messages")
+    public ResponseEntity<?> getMessagesBetweenTwoUsers(@RequestParam String senderUsername,
+            @RequestParam String receiverUsername) {
+        try {
+            List<Message> messages = messageService.getMessagesBetweenTwoUsers(senderUsername, receiverUsername);
+            if (!messages.isEmpty() && messages != null) {
+                Map<String, List<Message>> response = new HashMap<>();
+                response.put("messages", messages);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Failed to fetch chats by user");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Server error: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

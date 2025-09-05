@@ -20,4 +20,11 @@ public interface MessageRepository extends JpaRepository<Message, BigInteger> {
             "   ELSE m2.sender.username " +
             "END)")
     Optional<List<Message>> findChatsByUser(@Param("username") String username);
+
+    @Query("SELECT m FROM messages m "
+            + "WHERE (m.sender.username = :senderUsername AND m.receiver.username = :receiverUsername) "
+            + "OR (m.sender.username = :receiverUsername AND m.receiver.username = :senderUsername) "
+            + "ORDER BY m.time")
+    Optional<List<Message>> findMessagesBetweenTwoUsers(@Param("senderUsername") String senderUsername,
+            @Param("receiverUsername") String receiverUsername);
 }

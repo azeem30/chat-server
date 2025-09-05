@@ -28,14 +28,12 @@ public class MessageService {
         List<Message> decryptedChats = new ArrayList<>();
 
         for (Message message : chats) {
-            // Create a new Message object to avoid modifying the original entity
             Message decryptedMessage = new Message();
             decryptedMessage.setId(message.getId());
             decryptedMessage.setStatus(message.getStatus());
             decryptedMessage.setTime(message.getTime());
 
             try {
-                // Decrypt the message text
                 String decryptedText = Cryptography.decrypt(Cryptography.decompress(message.getText()));
                 decryptedMessage.setText(decryptedText);
             } catch (Exception e) {
@@ -43,7 +41,6 @@ public class MessageService {
             }
 
             try {
-                // Create a new User object for sender and set decrypted username
                 User decryptedSender = new User();
                 String decryptedSenderUsername = Cryptography.decrypt(
                         Cryptography.decompress(message.getSender().getUsername()));
@@ -56,7 +53,6 @@ public class MessageService {
             }
 
             try {
-                // Create a new User object for receiver and set decrypted username
                 User decryptedReceiver = new User();
                 String decryptedReceiverUsername = Cryptography.decrypt(
                         Cryptography.decompress(message.getReceiver().getUsername()));
@@ -72,5 +68,60 @@ public class MessageService {
         }
 
         return decryptedChats;
+    }
+
+    public List<Message> getMessagesBetweenTwoUsers(String senderUsername, String receiverUsername) {
+        String encryptedSenderUsername = Cryptography.compress(Cryptography.encrypt(senderUsername));
+        String encryptedReceiverUsername = Cryptography.compress(Cryptography.encrypt(receiverUsername));
+        Optional<List<Message>> optionalMessages = messageRepository.findMessagesBetweenTwoUsers(
+                encryptedSenderUsername,
+                encryptedReceiverUsername);
+        if (optionalMessages.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Message> messages = optionalMessages.get();
+        List<Message> decryptedMessages = new ArrayList<>();
+
+        for (Message message : messages) {
+            Message decryptedMessage = new Message();
+            decryptedMessage.setId(message.getId());
+            decryptedMessage.setStatus(message.getStatus());
+            decryptedMessage.setTime(message.getTime());
+
+            try {
+                String decryptedText = Cryptography.decrypt(Cryptography.decompress(message.getText()));
+                decryptedMessage.setText(decryptedText);
+            } catch (Exception e) {
+                decryptedMessage.setText("[Encrypted message - decryption failed]");
+            }
+
+            try {
+                User decryptedSender = new User();
+                String decryptedSenderUsername = Cryptography.decrypt(
+                        Cryptography.decompress(message.getSender().getUsername()));
+                decryptedSender.setUsername(decryptedSenderUsername);
+                decryptedMessage.setSender(decryptedSender);
+            } catch (Exception e) {
+                User errorSender = new User();
+                errorSender.setUsername("[Sender decryption failed]");
+                decryptedMessage.setSender(errorSender);
+            }
+
+            try {
+                User decryptedReceiver = new User();
+                String decryptedReceiverUsername = Cryptography.decrypt(
+                        Cryptography.decompress(message.getReceiver().getUsername()));
+                decryptedReceiver.setUsername(decryptedReceiverUsername);
+                decryptedMessage.setReceiver(decryptedReceiver);
+            } catch (Exception e) {
+                User errorReceiver = new User();
+                errorReceiver.setUsername("[Receiver decryption failed]");
+                decryptedMessage.setReceiver(errorReceiver);
+            }
+
+            decryptedMessages.add(decryptedMessage);
+        }
+        return decryptedMessages;
     }
 }
