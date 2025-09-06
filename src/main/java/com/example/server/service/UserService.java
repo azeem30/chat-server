@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.server.entity.User;
+import com.example.server.repository.MessageRepository;
 import com.example.server.repository.UserRepository;
 import com.example.server.utils.Cryptography;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -55,6 +58,32 @@ public class UserService {
             User savedUser = optionalUser.get();
             String decryptedPassword = Cryptography.decrypt(Cryptography.decompress(savedUser.getPassword()));
             return user.getPassword().equals(decryptedPassword) && user.getIp().equals(savedUser.getIp());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public Boolean updateUsername(String oldUsername, String newUsername) {
+        try {
+            String encryptedOldUsername = Cryptography.compress(Cryptography.encrypt(oldUsername));
+            String encryptedNewUsername = Cryptography.compress(Cryptography.encrypt(newUsername));
+            userRepository.updateUsername(encryptedOldUsername, encryptedNewUsername);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public Boolean updatePassword(String username, String oldPassword, String newPassword) {
+        try {
+            String encryptedUsername = Cryptography.compress(Cryptography.encrypt(username));
+            String encryptedOldPassword = Cryptography.compress(Cryptography.encrypt(oldPassword));
+            String encryptedNewPassword = Cryptography.compress(Cryptography.encrypt(newPassword));
+            userRepository.updatePassword(encryptedUsername, encryptedOldPassword, encryptedNewPassword);
+            return true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;

@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -73,6 +74,47 @@ public class UserController {
             } else {
                 Map<String, String> errorResponse = new HashMap<>();
                 errorResponse.put("error", "Failed to login user");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Server error: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/username")
+    public ResponseEntity<?> updateUsername(@RequestParam String oldUsername, @RequestParam String newUsername) {
+        try {
+            Boolean ok = userService.updateUsername(oldUsername, newUsername);
+            if (ok) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Username updated successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Failed to update username");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Server error: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@RequestParam String username, @RequestParam String oldPassword,
+            @RequestParam String newPassword) {
+        try {
+            Boolean ok = userService.updatePassword(username, oldPassword, newPassword);
+            if (ok) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Password updated successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Failed to update password");
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
