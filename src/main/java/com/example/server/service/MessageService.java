@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import com.example.server.utils.Cryptography;
 
 @Service
 public class MessageService {
+    private static final Logger logger = LoggerFactory.getLogger(MessageService.class);
+
     @Autowired
     private MessageRepository messageRepository;
 
@@ -40,6 +44,7 @@ public class MessageService {
                 String decryptedText = cryptography.decrypt(cryptography.decompress(message.getText()));
                 decryptedMessage.setText(decryptedText);
             } catch (Exception e) {
+                logger.error("Failed to decrypt message text for message ID: {}", message.getId(), e);
                 decryptedMessage.setText("[Encrypted message - decryption failed]");
             }
 
@@ -50,6 +55,7 @@ public class MessageService {
                 decryptedSender.setUsername(decryptedSenderUsername);
                 decryptedMessage.setSender(decryptedSender);
             } catch (Exception e) {
+                logger.error("Failed to decrypt sender username for message ID: {}", message.getId(), e);
                 User errorSender = new User();
                 errorSender.setUsername("[Sender decryption failed]");
                 decryptedMessage.setSender(errorSender);
@@ -62,6 +68,7 @@ public class MessageService {
                 decryptedReceiver.setUsername(decryptedReceiverUsername);
                 decryptedMessage.setReceiver(decryptedReceiver);
             } catch (Exception e) {
+                logger.error("Failed to decrypt receiver username for message ID: {}", message.getId(), e);
                 User errorReceiver = new User();
                 errorReceiver.setUsername("[Receiver decryption failed]");
                 decryptedMessage.setReceiver(errorReceiver);
@@ -96,6 +103,7 @@ public class MessageService {
                 String decryptedText = cryptography.decrypt(cryptography.decompress(message.getText()));
                 decryptedMessage.setText(decryptedText);
             } catch (Exception e) {
+                logger.error("Failed to decrypt message text for message ID: {}", message.getId(), e);
                 decryptedMessage.setText("[Encrypted message - decryption failed]");
             }
 
@@ -106,6 +114,7 @@ public class MessageService {
                 decryptedSender.setUsername(decryptedSenderUsername);
                 decryptedMessage.setSender(decryptedSender);
             } catch (Exception e) {
+                logger.error("Failed to decrypt sender username for message ID: {}", message.getId(), e);
                 User errorSender = new User();
                 errorSender.setUsername("[Sender decryption failed]");
                 decryptedMessage.setSender(errorSender);
@@ -118,6 +127,7 @@ public class MessageService {
                 decryptedReceiver.setUsername(decryptedReceiverUsername);
                 decryptedMessage.setReceiver(decryptedReceiver);
             } catch (Exception e) {
+                logger.error("Failed to decrypt receiver username for message ID: {}", message.getId(), e);
                 User errorReceiver = new User();
                 errorReceiver.setUsername("[Receiver decryption failed]");
                 decryptedMessage.setReceiver(errorReceiver);

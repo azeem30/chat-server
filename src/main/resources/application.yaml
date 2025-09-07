@@ -21,3 +21,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect 
 server:
   port: ${PORT}
+logging:
+  level:
+    root: INFO
+    com.example.server.service: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"

@@ -3,6 +3,8 @@ package com.example.server.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -32,7 +36,7 @@ public class UserService {
             }
             return true;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error("Error finding user by username: {}", username, e);
             return false;
         }
     }
@@ -44,7 +48,7 @@ public class UserService {
             User savedUser = userRepository.save(user);
             return savedUser != null;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error("Error registering user: {}", user.getUsername(), e);
             return false;
         }
     }
@@ -60,7 +64,7 @@ public class UserService {
             String decryptedPassword = cryptography.decrypt(cryptography.decompress(savedUser.getPassword()));
             return user.getPassword().equals(decryptedPassword) && user.getIp().equals(savedUser.getIp());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error("Error logging in user: {}", user.getUsername(), e);
             return false;
         }
     }
@@ -73,7 +77,7 @@ public class UserService {
             userRepository.updateUsername(encryptedOldUsername, encryptedNewUsername);
             return true;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error("Error updating username from {} to {}", oldUsername, newUsername, e);
             return false;
         }
     }
@@ -86,7 +90,7 @@ public class UserService {
             userRepository.updatePassword(encryptedUsername, encryptedOldPassword, encryptedNewPassword);
             return true;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error("Error updating password for user: {}", username, e);
             return false;
         }
     }
