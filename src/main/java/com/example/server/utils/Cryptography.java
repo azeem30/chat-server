@@ -3,6 +3,9 @@ package com.example.server.utils;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.Deflater;
@@ -10,8 +13,10 @@ import java.util.zip.Inflater;
 import java.io.ByteArrayOutputStream;
 
 public class Cryptography {
-    private static String secretKey = System.getProperty("SECRET_KEY");
-    private static String initVector = System.getProperty("INIT_VECTOR");
+    @Value("${SECRET_KEY}")
+    private static String secretKey;
+    @Value("${INIT_VECTOR}")
+    private static String initVector;
 
     public static String encrypt(String value) {
         try {
