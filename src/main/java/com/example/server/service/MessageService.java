@@ -17,8 +17,11 @@ public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
+    @Autowired
+    private Cryptography cryptography;
+
     public List<Message> getChatsByUser(String username) {
-        String encryptedUsername = Cryptography.compress(Cryptography.encrypt(username));
+        String encryptedUsername = cryptography.compress(cryptography.encrypt(username));
         Optional<List<Message>> optionalChats = messageRepository.findChatsByUser(encryptedUsername);
         if (optionalChats.isEmpty()) {
             return new ArrayList<>();
@@ -34,7 +37,7 @@ public class MessageService {
             decryptedMessage.setTime(message.getTime());
 
             try {
-                String decryptedText = Cryptography.decrypt(Cryptography.decompress(message.getText()));
+                String decryptedText = cryptography.decrypt(cryptography.decompress(message.getText()));
                 decryptedMessage.setText(decryptedText);
             } catch (Exception e) {
                 decryptedMessage.setText("[Encrypted message - decryption failed]");
@@ -42,8 +45,8 @@ public class MessageService {
 
             try {
                 User decryptedSender = new User();
-                String decryptedSenderUsername = Cryptography.decrypt(
-                        Cryptography.decompress(message.getSender().getUsername()));
+                String decryptedSenderUsername = cryptography.decrypt(
+                        cryptography.decompress(message.getSender().getUsername()));
                 decryptedSender.setUsername(decryptedSenderUsername);
                 decryptedMessage.setSender(decryptedSender);
             } catch (Exception e) {
@@ -54,8 +57,8 @@ public class MessageService {
 
             try {
                 User decryptedReceiver = new User();
-                String decryptedReceiverUsername = Cryptography.decrypt(
-                        Cryptography.decompress(message.getReceiver().getUsername()));
+                String decryptedReceiverUsername = cryptography.decrypt(
+                        cryptography.decompress(message.getReceiver().getUsername()));
                 decryptedReceiver.setUsername(decryptedReceiverUsername);
                 decryptedMessage.setReceiver(decryptedReceiver);
             } catch (Exception e) {
@@ -71,8 +74,8 @@ public class MessageService {
     }
 
     public List<Message> getMessagesBetweenTwoUsers(String senderUsername, String receiverUsername) {
-        String encryptedSenderUsername = Cryptography.compress(Cryptography.encrypt(senderUsername));
-        String encryptedReceiverUsername = Cryptography.compress(Cryptography.encrypt(receiverUsername));
+        String encryptedSenderUsername = cryptography.compress(cryptography.encrypt(senderUsername));
+        String encryptedReceiverUsername = cryptography.compress(cryptography.encrypt(receiverUsername));
         Optional<List<Message>> optionalMessages = messageRepository.findMessagesBetweenTwoUsers(
                 encryptedSenderUsername,
                 encryptedReceiverUsername);
@@ -90,7 +93,7 @@ public class MessageService {
             decryptedMessage.setTime(message.getTime());
 
             try {
-                String decryptedText = Cryptography.decrypt(Cryptography.decompress(message.getText()));
+                String decryptedText = cryptography.decrypt(cryptography.decompress(message.getText()));
                 decryptedMessage.setText(decryptedText);
             } catch (Exception e) {
                 decryptedMessage.setText("[Encrypted message - decryption failed]");
@@ -98,8 +101,8 @@ public class MessageService {
 
             try {
                 User decryptedSender = new User();
-                String decryptedSenderUsername = Cryptography.decrypt(
-                        Cryptography.decompress(message.getSender().getUsername()));
+                String decryptedSenderUsername = cryptography.decrypt(
+                        cryptography.decompress(message.getSender().getUsername()));
                 decryptedSender.setUsername(decryptedSenderUsername);
                 decryptedMessage.setSender(decryptedSender);
             } catch (Exception e) {
@@ -110,8 +113,8 @@ public class MessageService {
 
             try {
                 User decryptedReceiver = new User();
-                String decryptedReceiverUsername = Cryptography.decrypt(
-                        Cryptography.decompress(message.getReceiver().getUsername()));
+                String decryptedReceiverUsername = cryptography.decrypt(
+                        cryptography.decompress(message.getReceiver().getUsername()));
                 decryptedReceiver.setUsername(decryptedReceiverUsername);
                 decryptedMessage.setReceiver(decryptedReceiver);
             } catch (Exception e) {

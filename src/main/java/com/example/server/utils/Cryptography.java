@@ -3,8 +3,8 @@ package com.example.server.utils;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -12,13 +12,14 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.io.ByteArrayOutputStream;
 
+@Component
 public class Cryptography {
     @Value("${SECRET_KEY}")
-    private static String secretKey;
+    private String secretKey;
     @Value("${INIT_VECTOR}")
-    private static String initVector;
+    private String initVector;
 
-    public static String encrypt(String value) {
+    public String encrypt(String value) {
         try {
             if (secretKey == null || initVector == null) {
                 throw new IllegalStateException("Secret key or init vector not initialized");
@@ -36,7 +37,7 @@ public class Cryptography {
         }
     }
 
-    public static String decrypt(String encrypted) {
+    public String decrypt(String encrypted) {
         try {
             if (secretKey == null || initVector == null) {
                 throw new IllegalStateException("Secret key or init vector not initialized");
@@ -54,7 +55,7 @@ public class Cryptography {
         }
     }
 
-    public static String compress(String encrypted) {
+    public String compress(String encrypted) {
         try {
             byte[] inputBytes = encrypted.getBytes(StandardCharsets.UTF_8);
             Deflater deflater = new Deflater(6);
@@ -79,7 +80,7 @@ public class Cryptography {
         }
     }
 
-    public static String decompress(String compressed) {
+    public String decompress(String compressed) {
         try {
             byte[] compressedBytes = Base64.getDecoder().decode(compressed);
             Inflater inflater = new Inflater();
